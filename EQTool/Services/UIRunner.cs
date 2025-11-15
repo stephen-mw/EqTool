@@ -3,6 +3,7 @@ using EQTool.ViewModels;
 using EQToolShared.Enums;
 using System;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace EQTool.Services
 {
@@ -11,21 +12,22 @@ namespace EQTool.Services
         private readonly SpellWindowViewModel spellWindowViewModel;
         private readonly LoggingService loggingService;
         private readonly ActivePlayer activePlayer;
-        private System.Timers.Timer timer;
+        private DispatcherTimer timer;
 
         public UIRunner(SpellWindowViewModel spellWindowViewModel, LoggingService loggingService, ActivePlayer activePlayer)
         {
             this.activePlayer = activePlayer;
             this.loggingService = loggingService;
             this.spellWindowViewModel = spellWindowViewModel;
-            timer = new System.Timers.Timer(1000);
-            timer.Elapsed += UITimer_Elapsed;
-            timer.Enabled = true;
+            timer = new DispatcherTimer();
+            timer.Interval = new TimeSpan(0, 0, 1);
+            timer.Tick += UITimer_Elapsed;
+            timer.Start();
         }
 
         private DateTime? LastUIRun = null;
         private DateTime? LastBoatUpdate = null;
-        private void UITimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void UITimer_Elapsed(object sender, EventArgs e)
         {
             var now = DateTime.Now;
             var dt_ms = 0.0;
@@ -49,7 +51,6 @@ namespace EQTool.Services
         public void Dispose()
         {
             timer?.Stop();
-            timer?.Dispose();
             timer = null;
         }
     }
